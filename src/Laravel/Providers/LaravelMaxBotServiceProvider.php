@@ -3,9 +3,12 @@
 namespace NaggaDIM\LaravelMaxBot\Laravel\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use NaggaDIM\LaravelMaxBot\API\IMaxAPI;
+use NaggaDIM\LaravelMaxBot\API\MaxAPI;
+use NaggaDIM\LaravelMaxBot\ILaravelMaxBot;
 use NaggaDIM\LaravelMaxBot\Laravel\Console\Commands\StartPollingCommand;
-use NaggaDIM\LaravelMaxBot\Service\ILaravelMaxBot;
-use NaggaDIM\LaravelMaxBot\Service\LaravelMaxBot;
+use NaggaDIM\LaravelMaxBot\LaravelMaxBot;
+use NaggaDIM\LaravelMaxBot\MaxBotRouter;
 
 class LaravelMaxBotServiceProvider extends ServiceProvider
 {
@@ -15,8 +18,9 @@ class LaravelMaxBotServiceProvider extends ServiceProvider
             $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
 
             $this->publishes([
-                __DIR__.'/../../config/max-messenger.php' => config_path('max-messenger.php'),
-            ]);
+                __DIR__.'/../../config/maxbot.php' => config_path('maxbot.php'),
+                __DIR__.'/../../routes/maxbot.php' => base_path('routes/maxbot.php'),
+            ], 'laravel-max-bot');
 
             $this->commands([
                 StartPollingCommand::class,
@@ -28,6 +32,15 @@ class LaravelMaxBotServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        $this->app->singleton(MaxBotRouter::class, function ($app) {
+            return MaxBotRouter::bootstrap();
+        });
+
+        $this->app->bind(
+            IMaxAPI::class,
+            MaxAPI::class,
+        );
+
         $this->app->bind(
             ILaravelMaxBot::class,
             LaravelMaxBot::class,

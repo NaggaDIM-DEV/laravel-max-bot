@@ -3,6 +3,8 @@
 namespace NaggaDIM\LaravelMaxBot\Laravel\Console\Commands;
 
 use Illuminate\Console\Command;
+use NaggaDIM\LaravelMaxBot\Enums\Mode;
+use NaggaDIM\LaravelMaxBot\Laravel\Facade\LaravelMaxBot;
 
 class StartPollingCommand extends Command
 {
@@ -12,6 +14,6 @@ class StartPollingCommand extends Command
 
     public function handle(): void
     {
-
+        LaravelMaxBot::start(mode: Mode::LONG_POLLING);
     }
 }
