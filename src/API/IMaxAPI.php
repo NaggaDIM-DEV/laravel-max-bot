@@ -8,6 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
 use JsonSerializable;
+use NaggaDIM\LaravelMaxBot\API\DTO\BotCommand;
 use NaggaDIM\LaravelMaxBot\API\DTO\Chat;
 use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
@@ -115,6 +116,35 @@ interface IMaxAPI
      * @throws ConnectionException
      */
     public function getMe(): BotInfo;
+
+    /**
+     * @param string|null $name
+     * @param string|null $description
+     * @param Collection<BotCommand>|null $commands
+     * @return bool
+     * @throws APIException
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     */
+    public function editMe(?string $name = null, ?string $description = null, ?Collection $commands = null): bool;
+
+    /**
+     * @param Collection<BotCommand> $commands
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     * @throws InvalidArgumentException
+     */
+    public function setMeCommands(Collection $commands): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     * @throws InvalidArgumentException
+     */
+    public function deleteMeCommands(): bool;
 
     /**
      * @throws MaxBotException

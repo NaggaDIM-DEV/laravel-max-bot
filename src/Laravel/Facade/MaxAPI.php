@@ -8,6 +8,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use JsonSerializable;
+use NaggaDIM\LaravelMaxBot\API\DTO\BotCommand;
 use NaggaDIM\LaravelMaxBot\API\DTO\Chat;
 use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
@@ -33,6 +34,10 @@ use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
  * @method static bool deleteSubscription(string $url)
  *
  * @method static BotInfo getMe()
+ * @method static bool editMe(null|string $name = null, null|string $description = null, null|BotCommand[] $commands = null)
+ * @method static bool setMeCommands(BotCommand[] $commands)
+ * @method static bool deleteMeCommands()
+ *
  * @method static GetChatsResponse getChats(int $count = 50, null|int $marker = null)
  * @method static Chat getChat(int $chatID)
  * @method static Chat editChat(int $chatID, null|Image $icon = null, null|string $title = null, null|string $pin = null, bool $notify = true)

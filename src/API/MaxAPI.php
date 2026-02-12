@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use JsonSerializable;
+use NaggaDIM\LaravelMaxBot\API\DTO\BotCommand;
 use NaggaDIM\LaravelMaxBot\API\DTO\Chat;
 use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
@@ -208,6 +209,60 @@ class MaxAPI implements IMaxAPI
     public function getMe(): BotInfo
     {
         return BotInfo::fromJson($this->get('/me')->json());
+    }
+
+    /**
+     * @param string|null $name
+     * @param string|null $description
+     * @param Collection<BotCommand>|null $commands
+     * @return bool
+     * @throws APIException
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     */
+    public function editMe(?string $name = null, ?string $description = null, ?Collection $commands = null): bool
+    {
+        if(empty($name) && empty($description) && empty($commands)) {
+            throw new InvalidArgumentException('Name or Description or Commands cannot be empty');
+        }
+        $data = [];
+        if(!is_null($name)) { $data['name'] = $name; }
+        if(!is_null($description)) { $data['description'] = $description; }
+        if(!is_null($commands)) { $data['commands'] = $commands->map(fn($c) => $c->toJson()); }
+        $response = $this->patch('/me', $data);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Collection<BotCommand> $commands
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     * @throws InvalidArgumentException
+     */
+    public function setMeCommands(Collection $commands): bool
+    {
+        return $this->editMe(commands: $commands);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     * @throws InvalidArgumentException
+     */
+    public function deleteMeCommands(): bool
+    {
+        return $this->editMe(commands: Collection::empty());
     }
 
     /**
