@@ -7,6 +7,7 @@ use NaggaDIM\LaravelMaxBot\API\IMaxAPI;
 use NaggaDIM\LaravelMaxBot\API\MaxAPI;
 use NaggaDIM\LaravelMaxBot\ILaravelMaxBot;
 use NaggaDIM\LaravelMaxBot\Laravel\Console\Commands\StartPollingCommand;
+use NaggaDIM\LaravelMaxBot\Laravel\Console\Commands\SubscriptionsCommand;
 use NaggaDIM\LaravelMaxBot\LaravelMaxBot;
 use NaggaDIM\LaravelMaxBot\MaxBotRouter;
 
@@ -24,6 +25,7 @@ class LaravelMaxBotServiceProvider extends ServiceProvider
 
             $this->commands([
                 StartPollingCommand::class,
+                SubscriptionsCommand::class,
             ]);
         }
 

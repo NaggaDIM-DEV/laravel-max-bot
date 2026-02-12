@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use JsonSerializable;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
+use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 use NaggaDIM\LaravelMaxBot\Exceptions\APIException;
+use NaggaDIM\LaravelMaxBot\Exceptions\InvalidArgumentException;
 use NaggaDIM\LaravelMaxBot\Exceptions\MaxBotException;
 use NaggaDIM\LaravelMaxBot\Exceptions\NotFilledTokenException;
-use NaggaDIM\LaravelMaxBot\Message;
 
 class MaxAPI implements IMaxAPI
 {
@@ -76,6 +77,21 @@ class MaxAPI implements IMaxAPI
     {
         return Http::withHeaders($this->buildHeaders($headers))
             ->post($this->buildUri($path, $query), $data);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function put(
+        string $path = '/',
+        array|JsonSerializable|Arrayable $data = [],
+        null|array|string $query = null,
+        null|array $headers = null
+    ): Response|PromiseInterface
+    {
+        return Http::withHeaders($this->buildHeaders($headers))
+            ->put($this->buildUri($path, $query), $data);
     }
 
     /**
@@ -202,9 +218,9 @@ class MaxAPI implements IMaxAPI
     {
         $response = $this->post('/messages', data: $message->toJson(), query: ['user_id' => $userID]);
 
-        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+        if(!$response->successful()) {
             throw new APIException(
-                $response->json()['message'] ?? $response->body(),
+                $response->body(),
                 $response->status(),
             );
         }
@@ -220,6 +236,33 @@ class MaxAPI implements IMaxAPI
     public function sendMessageToChat(int $chatID, Message $message): bool
     {
         $response = $this->post('/messages', data: $message->toJson(), query: ['chat_id' => $chatID]);
+
+        if(!$response->successful()) {
+            throw new APIException(
+                $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     */
+    public function answerToCallback(string $callbackID, ?Message $message = null, ?string $notification = null): bool
+    {
+        if(empty($message) && empty($notification)) {
+            throw new InvalidArgumentException('Message or Notification must be set');
+        }
+
+        $data = [];
+        if(!empty($message)) { $data['message'] = $message->toJson(); }
+        if(!empty($notification)) { $data['notification'] = $notification; }
+
+        $response = $this->post('/answers', data: $data, query: ['callback_id' => $callbackID]);
 
         if(!($response->successful() && ($response->json()['success'] ?? false))) {
             throw new APIException(

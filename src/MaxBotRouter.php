@@ -6,13 +6,15 @@ namespace NaggaDIM\LaravelMaxBot;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 use NaggaDIM\LaravelMaxBot\Exceptions\InvalidArgumentException;
 use NaggaDIM\LaravelMaxBot\Helpers\UpdateHelper;
+use NaggaDIM\LaravelMaxBot\Listeners\CallbackListener;
 use NaggaDIM\LaravelMaxBot\Listeners\CommandListener;
 use NaggaDIM\LaravelMaxBot\Listeners\UpdateListener;
 
 class MaxBotRouter
 {
-    protected array $updates;
+    protected array $updates = [];
     protected array $commands = [];
+    protected array $callbacks = [];
 
     public function __construct() { }
 
@@ -67,6 +69,24 @@ class MaxBotRouter
         $this->commands[$command->getCommandPart()] = $command::class;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function registerCallback(string|CallbackListener $callback): void
+    {
+        if(is_string($callback)) {
+            if(!is_subclass_of($callback, CallbackListener::class)) {
+                throw new InvalidArgumentException(sprintf(
+                    'You must provide subclass of the %s class or an instance.',
+                    CommandListener::class
+                ));
+            }
+            $callback = new $callback;
+        }
+
+        $this->callbacks[$callback->getCallback()] = $callback::class;
+    }
+
     public function dispatch(array $update): void
     {
         $updateType = $update['update_type'] ?? 'undefined';
@@ -87,16 +107,15 @@ class MaxBotRouter
                 }
             }
         }
-    }
 
-//    public function dispatchOnUpdate(array $update): void
-//    {
-//        $updateType = $update['update_type'] ?? 'undefined';
-//        if(!empty($this->updates[$updateType] ?? [])) {
-//            foreach($this->updates[$updateType] as $updateListener) {
-//                $updateListener = new $updateListener;
-//                $updateListener->run($update);
-//            }
-//        }
-//    }
+        if($updateType === UpdateType::MESSAGE_CALLBACK->value) {
+            $callback = strtolower(trim(explode(':', UpdateHelper::getCallbackPayload($update) ?? '')[0]));
+            if(isset($this->callbacks[$callback])) {
+                if(isset($this->callbacks[$callback])) {
+                    (new $this->callbacks[$callback])
+                        ->run($update);
+                }
+            }
+        }
+    }
 }

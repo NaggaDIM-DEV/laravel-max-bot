@@ -9,10 +9,11 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
 use JsonSerializable;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
+use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 use NaggaDIM\LaravelMaxBot\Exceptions\APIException;
+use NaggaDIM\LaravelMaxBot\Exceptions\InvalidArgumentException;
 use NaggaDIM\LaravelMaxBot\Exceptions\MaxBotException;
-use NaggaDIM\LaravelMaxBot\Message;
 
 interface IMaxAPI
 {
@@ -31,6 +32,17 @@ interface IMaxAPI
      * @throws ConnectionException
      */
     public function post(
+        string $path = '/',
+        array|JsonSerializable|Arrayable $data = [],
+        null|array|string $query = null,
+        null|array $headers = null
+    ): Response|PromiseInterface;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function put(
         string $path = '/',
         array|JsonSerializable|Arrayable $data = [],
         null|array|string $query = null,
@@ -109,4 +121,11 @@ interface IMaxAPI
      * @throws ConnectionException
      */
     public function sendMessageToChat(int $chatID, Message $message): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     */
+    public function answerToCallback(string $callbackID, ?Message $message = null, ?string $notification = null): bool;
 }
