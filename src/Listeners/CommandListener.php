@@ -32,6 +32,6 @@ abstract class CommandListener extends Listener
 
         if(empty($key)) { return $matches; }
 
-        return $matches[$key] ?? $default;
+        return $matches[$key][0] ?? $default;
     }
 }
