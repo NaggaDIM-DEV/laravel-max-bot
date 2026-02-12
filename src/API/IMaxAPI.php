@@ -13,7 +13,9 @@ use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
 use NaggaDIM\LaravelMaxBot\API\DTO\User\BotInfo;
+use NaggaDIM\LaravelMaxBot\API\DTO\User\ChatMember;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
+use NaggaDIM\LaravelMaxBot\API\Responses\GetChatMembersResponse;
 use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
 use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
@@ -189,6 +191,54 @@ interface IMaxAPI
      * @throws APIException
      */
     public function deleteChatPin(int $chatID): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getMeMemberInChat(int $chatID): ChatMember;
+
+    /**
+     * @throws MaxBotException
+     * @throws APIException
+     * @throws ConnectionException
+     */
+    public function deleteMeMemberFromChat(int $chatID): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChatAdmins(int $chatID, int $count = 20, ?int $marker = null): GetChatMembersResponse;
+
+    /**
+     * @param null|array<int> $userIds
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChatMembers(int $chatID, int $count = 20, ?int $marker = null, ?array $userIds = null): GetChatMembersResponse;
+
+    /**
+     * @param array<int> $userIds
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function addChatMembers(int $chatID, array $userIds): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function addChatMember(int $chatID, int $userID): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function deleteChatMember(int $chatID, int $userID, ?bool $block = null): bool;
 
     /**
      * @param int<1,1000> $limit

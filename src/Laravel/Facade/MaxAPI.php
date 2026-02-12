@@ -13,8 +13,10 @@ use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
 use NaggaDIM\LaravelMaxBot\API\DTO\User\BotInfo;
 use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
+use NaggaDIM\LaravelMaxBot\API\DTO\User\ChatMember;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
 use NaggaDIM\LaravelMaxBot\API\IMaxAPI;
+use NaggaDIM\LaravelMaxBot\API\Responses\GetChatMembersResponse;
 use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
 use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
@@ -42,6 +44,14 @@ use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
  * @method static MessageDTO getChatPin(int $chatID)
  * @method static bool setChatPin(int $chatID, string $messageID, bool $notify = true)
  * @method static bool deleteChatPin(int $chatID)
+ *
+ * @method static ChatMember getMeMemberInChat(int $chatID)
+ * @method static bool deleteMeMemberFromChat(int $chatID)
+ * @method static GetChatMembersResponse getChatAdmins(int $chatID, int $count = 20, ?int $marker = null)
+ * @method static GetChatMembersResponse getChatMembers(int $chatID, int $count = 20, ?int $marker = null, null|array $userIds = null)
+ * @method static bool addChatMembers(int $chatID, int[] $userIds)
+ * @method static bool addChatMember(int $chatID, int $userID)
+ * @method static bool deleteChatMember(int $chatID, int $userID, null|bool $block = null)
  *
  * @method static array getUpdates(int $limit = 100, int $timeout = 30, null|int $marker = null, null|array $types = null)
  *

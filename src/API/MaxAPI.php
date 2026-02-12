@@ -15,7 +15,9 @@ use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
 use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
 use NaggaDIM\LaravelMaxBot\API\DTO\User\BotInfo;
+use NaggaDIM\LaravelMaxBot\API\DTO\User\ChatMember;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
+use NaggaDIM\LaravelMaxBot\API\Responses\GetChatMembersResponse;
 use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
 use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
@@ -356,6 +358,117 @@ class MaxAPI implements IMaxAPI
     public function deleteChatPin(int $chatID): bool
     {
         $response = $this->delete("/chats/$chatID/pin");
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getMeMemberInChat(int $chatID): ChatMember
+    {
+        return ChatMember::fromJson($this->get("/chats/$chatID/members/me")->json());
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws APIException
+     * @throws ConnectionException
+     */
+    public function deleteMeMemberFromChat(int $chatID): bool
+    {
+        $response = $this->delete("/chats/$chatID/members/me");
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChatAdmins(int $chatID, int $count = 20, ?int $marker = null): GetChatMembersResponse
+    {
+        return GetChatMembersResponse::fromJson($this->get("/chats/$chatID/members/admins", [
+            'count' => $count,
+            'marker' => $marker
+        ])->json());
+    }
+
+    /** todo: addChatAdmin */
+    /** todo: deleteChatAdmin */
+
+    /**
+     * @param null|array<int> $userIds
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChatMembers(int $chatID, int $count = 20, ?int $marker = null, ?array $userIds = null): GetChatMembersResponse
+    {
+        return GetChatMembersResponse::fromJson($this->get("/chats/$chatID/members", [
+            'count' => $count,
+            'marker' => $marker,
+            'user_ids' => $userIds
+        ])->json());
+    }
+
+    /**
+     * @param array<int> $userIds
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function addChatMembers(int $chatID, array $userIds): bool
+    {
+        $response = $this->post("/chats/$chatID/members", [
+            'user_ids' => $userIds,
+        ]);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function addChatMember(int $chatID, int $userID): bool
+    {
+        return $this->addChatMembers($chatID, [$userID]);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function deleteChatMember(int $chatID, int $userID, ?bool $block = null): bool
+    {
+        $response = $this->delete("/chats/$chatID/members", query: [
+            'user_id' => $userID,
+            'block' => $block,
+        ]);
 
         if(!($response->successful() && ($response->json()['success'] ?? false))) {
             throw new APIException(
