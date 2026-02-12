@@ -67,4 +67,11 @@ abstract class Listener
     {
         return $this->answerToCallbackWithCallbackID($this->getCallbackID(), $message, $notification);
     }
+
+    public function answerCallbackOrSendMessage(Message $message): bool
+    {
+        return !empty($this->getCallbackID())
+            ? $this->answerToCallback(message: $message)
+            : $this->sendMessage($message);
+    }
 }

@@ -10,8 +10,14 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use JsonSerializable;
+use NaggaDIM\LaravelMaxBot\API\DTO\Chat;
+use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
+use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
+use NaggaDIM\LaravelMaxBot\API\DTO\User\BotInfo;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
+use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
+use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 use NaggaDIM\LaravelMaxBot\Exceptions\APIException;
 use NaggaDIM\LaravelMaxBot\Exceptions\InvalidArgumentException;
@@ -98,6 +104,21 @@ class MaxAPI implements IMaxAPI
      * @throws MaxBotException
      * @throws ConnectionException
      */
+    public function patch(
+        string $path = '/',
+        array|JsonSerializable|Arrayable $data = [],
+        null|array|string $query = null,
+        null|array $headers = null
+    ): Response|PromiseInterface
+    {
+        return Http::withHeaders($this->buildHeaders($headers))
+            ->patch($this->buildUri($path, $query), $data);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
     public function delete(
         string $path = '/',
         array|JsonSerializable|Arrayable $data = [],
@@ -167,6 +188,174 @@ class MaxAPI implements IMaxAPI
     public function deleteSubscription(string $url): bool
     {
         $response = $this->delete('/subscriptions', query: ['url' => $url]);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getMe(): BotInfo
+    {
+        return BotInfo::fromJson($this->get('/me')->json());
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChats(int $count = 50, ?int $marker = null): GetChatsResponse
+    {
+        return GetChatsResponse::fromJson($this->get('/chats', ['count' => $count, 'marker' => $marker])->json());
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChat(int $chatID): Chat
+    {
+        return Chat::fromJson($this->get("/chats/$chatID")->json());
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChat(
+        int $chatID,
+        ?Image $icon = null,
+        ?string $title = null,
+        ?string $pin = null,
+        bool $notify = true,
+    ): Chat
+    {
+        return Chat::fromJson($this->patch("/chats/$chatID", [
+            'icon' => $icon?->toJson() ?? null,
+            'title' => $title,
+            'pin' => $pin,
+            'notify' => $notify,
+        ])->json());
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChatIcon(int $chatID, Image $icon, bool $notify = true): Chat
+    {
+        return $this->editChat($chatID, icon: $icon, notify: $notify);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChatTitle(int $chatID, string $title, bool $notify = true): Chat
+    {
+        return $this->editChat($chatID, title: $title, notify: $notify);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChatPin(int $chatID, string $pin, bool $notify = true): Chat
+    {
+        return $this->editChat($chatID, pin: $pin, notify: $notify);
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function deleteChat(int $chatID): bool
+    {
+        $response = $this->delete("/chats/$chatID");
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function setChatAction(int $chatID, ChatAction $action): bool
+    {
+        $response = $this->post("/chats/$chatID/actions", [
+            'action' => $action->value,
+        ]);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChatPin(int $chatID): ?MessageDTO
+    {
+        $response = $this->get("/chats/$chatID/pin")->json();
+
+        return !empty($response['message'])
+            ? MessageDTO::fromJson($response['message'])
+            : null;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function setChatPin(int $chatID, string $messageID, bool $notify = true): bool
+    {
+        $response = $this->put("/chats/$chatID/pin", [
+            'message_id' => $messageID,
+            'notify' => $notify,
+        ]);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function deleteChatPin(int $chatID): bool
+    {
+        $response = $this->delete("/chats/$chatID/pin");
 
         if(!($response->successful() && ($response->json()['success'] ?? false))) {
             throw new APIException(

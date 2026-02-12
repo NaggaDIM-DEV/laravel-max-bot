@@ -8,8 +8,14 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
 use JsonSerializable;
+use NaggaDIM\LaravelMaxBot\API\DTO\Chat;
+use NaggaDIM\LaravelMaxBot\API\DTO\Image;
+use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
+use NaggaDIM\LaravelMaxBot\API\DTO\User\BotInfo;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
+use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
+use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 use NaggaDIM\LaravelMaxBot\Exceptions\APIException;
 use NaggaDIM\LaravelMaxBot\Exceptions\InvalidArgumentException;
@@ -43,6 +49,17 @@ interface IMaxAPI
      * @throws ConnectionException
      */
     public function put(
+        string $path = '/',
+        array|JsonSerializable|Arrayable $data = [],
+        null|array|string $query = null,
+        null|array $headers = null
+    ): Response|PromiseInterface;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function patch(
         string $path = '/',
         array|JsonSerializable|Arrayable $data = [],
         null|array|string $query = null,
@@ -90,6 +107,88 @@ interface IMaxAPI
      * @throws MaxBotException
      */
     public function deleteSubscription(string $url): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getMe(): BotInfo;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChats(int $count = 50, ?int $marker = null): GetChatsResponse;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChat(int $chatID): Chat;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChat(
+        int $chatID,
+        ?Image $icon = null,
+        ?string $title = null,
+        ?string $pin = null,
+        bool $notify = true,
+    ): Chat;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChatIcon(int $chatID, Image $icon, bool $notify = true): Chat;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChatTitle(int $chatID, string $title, bool $notify = true): Chat;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function editChatPin(int $chatID, string $pin, bool $notify = true): Chat;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function deleteChat(int $chatID): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function setChatAction(int $chatID, ChatAction $action): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     */
+    public function getChatPin(int $chatID): ?MessageDTO;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function setChatPin(int $chatID, string $messageID, bool $notify = true): bool;
+
+    /**
+     * @throws MaxBotException
+     * @throws ConnectionException
+     * @throws APIException
+     */
+    public function deleteChatPin(int $chatID): bool;
 
     /**
      * @param int<1,1000> $limit

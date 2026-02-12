@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Config;
 use NaggaDIM\LaravelMaxBot\Enums\Mode;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 use NaggaDIM\LaravelMaxBot\Helpers\UpdateHelper;
-use NaggaDIM\LaravelMaxBot\Laravel\Facade\MaxAPI;
+use NaggaDIM\LaravelMaxBot\API\MaxAPI;
 
-class LaravelMaxBot implements ILaravelMaxBot
+class LaravelMaxBot extends MaxAPI implements ILaravelMaxBot
 {
     protected bool $debug;
 
@@ -22,6 +22,7 @@ class LaravelMaxBot implements ILaravelMaxBot
 
     public function __construct()
     {
+        parent::__construct();
         $this->debug = boolval(Config::get('maxbot.debug', false));
         $this->longPollingLimit = Config::get('maxbot.long-polling.limit');
         $this->longPollingTimeout = Config::get('maxbot.long-polling.timeout');

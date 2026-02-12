@@ -8,20 +8,40 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use JsonSerializable;
+use NaggaDIM\LaravelMaxBot\API\DTO\Chat;
+use NaggaDIM\LaravelMaxBot\API\DTO\Image;
 use NaggaDIM\LaravelMaxBot\API\DTO\Subscription;
+use NaggaDIM\LaravelMaxBot\API\DTO\User\BotInfo;
+use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
 use NaggaDIM\LaravelMaxBot\API\IMaxAPI;
+use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
+use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
 
 /**
  * @method static Response|PromiseInterface get(string $path = '/', array|string|null $query = null, array|null $headers = null)
  * @method static Response|PromiseInterface post(string $path = '/', array|JsonSerializable|Arrayable $data = [], array|string|null $query = null, array|null $headers = null)
  * @method static Response|PromiseInterface put(string $path = '/', array|JsonSerializable|Arrayable $data = [], array|string|null $query = null, array|null $headers = null)
+ * @method static Response|PromiseInterface patch(string $path = '/', array|JsonSerializable|Arrayable $data = [], array|string|null $query = null, array|null $headers = null)
  * @method static Response|PromiseInterface delete(string $path = '/', array|JsonSerializable|Arrayable $data = [], array|string|null $query = null, array|null $headers = null)
  *
  * @method static Collection<Subscription> getSubscriptions()
  * @method static bool addSubscription(string $url, null|UpdateType[] $updateTypes = null, string|null $secret = null)
  * @method static bool deleteSubscription(string $url)
+ *
+ * @method static BotInfo getMe()
+ * @method static GetChatsResponse getChats(int $count = 50, null|int $marker = null)
+ * @method static Chat getChat(int $chatID)
+ * @method static Chat editChat(int $chatID, null|Image $icon = null, null|string $title = null, null|string $pin = null, bool $notify = true)
+ * @method static Chat editChatIcon(int $chatID, Image $icon, bool $notify = true)
+ * @method static Chat editChatTitle(int $chatID, string $title, bool $notify = true)
+ * @method static Chat editChatPin(int $chatID, string $pin, bool $notify = true)
+ * @method static bool deleteChat(int $chatID)
+ * @method static bool setChatAction(int $chatID, ChatAction $action)
+ * @method static MessageDTO getChatPin(int $chatID)
+ * @method static bool setChatPin(int $chatID, string $messageID, bool $notify = true)
+ * @method static bool deleteChatPin(int $chatID)
  *
  * @method static array getUpdates(int $limit = 100, int $timeout = 30, null|int $marker = null, null|array $types = null)
  *
