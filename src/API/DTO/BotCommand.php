@@ -16,4 +16,12 @@ readonly class BotCommand
             description: $json['description'] ?? null,
         );
     }
+
+    public function toJson(): array
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+        ];
+    }
 }
