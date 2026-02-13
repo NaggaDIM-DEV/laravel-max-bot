@@ -5,38 +5,25 @@ namespace NaggaDIM\LaravelMaxBot\API\DTO\User;
 use NaggaDIM\LaravelMaxBot\API\DTO\ChatAdminPermission;
 use Ramsey\Collection\Collection;
 
-readonly class ChatMember extends UserWithPhoto
+readonly class ChatMember
 {
     public function __construct(
-        int $userId,
-        bool $isBot,
-        string $firstName,
-        bool $isOwner,
-        bool $isAdmin,
-        ?string $lastName,
-        ?string $username,
-        ?float $lastActivityTime,
+        public int $userId,
+        public bool $isBot,
+        public string $firstName,
+        public bool $isOwner,
+        public bool $isAdmin,
+        public ?string $lastName,
+        public ?string $username,
+        public ?float $lastActivityTime,
         public ?float $lastAccessTime = null,
         public ?float $joinTime = null,
-        ?string $description = null,
-        ?string $avatarUrl = null,
-        ?string $fullAvatarUrl = null,
+        public ?string $description = null,
+        public ?string $avatarUrl = null,
+        public ?string $fullAvatarUrl = null,
         public ?string $alias = null,
         public ?Collection $permissions = null
-    )
-    {
-        parent::__construct(
-            $userId,
-            $isBot,
-            $firstName,
-            $lastName,
-            $username,
-            $lastActivityTime,
-            $description,
-            $avatarUrl,
-            $fullAvatarUrl
-        );
-    }
+    ) {}
 
     public static function fromJson(array $json): static
     {

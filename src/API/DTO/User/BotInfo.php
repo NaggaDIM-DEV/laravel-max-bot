@@ -5,33 +5,20 @@ namespace NaggaDIM\LaravelMaxBot\API\DTO\User;
 use Illuminate\Support\Collection;
 use NaggaDIM\LaravelMaxBot\API\DTO\BotCommand;
 
-readonly class BotInfo extends UserWithPhoto
+readonly class BotInfo
 {
     public function __construct(
-        int $userId,
-        bool $isBot,
-        string $firstName,
-        ?string $lastName,
-        ?string $username,
-        ?float $lastActivityTime,
-        ?string $description = null,
-        ?string $avatarUrl = null,
-        ?string $fullAvatarUrl = null,
+        public int $userId,
+        public bool $isBot,
+        public string $firstName,
+        public ?string $lastName,
+        public ?string $username,
+        public ?float $lastActivityTime,
+        public ?string $description = null,
+        public ?string $avatarUrl = null,
+        public ?string $fullAvatarUrl = null,
         public ?Collection $commands = null,
-    )
-    {
-        parent::__construct(
-            $userId,
-            $isBot,
-            $firstName,
-            $lastName,
-            $username,
-            $lastActivityTime,
-            $description,
-            $avatarUrl,
-            $fullAvatarUrl
-        );
-    }
+    ) {}
 
     public static function fromJson(array $json): static
     {

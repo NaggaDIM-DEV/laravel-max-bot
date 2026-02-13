@@ -2,26 +2,16 @@
 
 namespace NaggaDIM\LaravelMaxBot\API\DTO\User;
 
-readonly class User extends MaxUser
+readonly class User
 {
     public function __construct(
-        int $userId,
-        bool $isBot,
-        string $firstName,
-        ?string $lastName,
-        ?string $username,
-        ?float $lastActivityTime,
-    )
-    {
-        parent::__construct(
-            userId: $userId,
-            isBot: $isBot,
-            firstName: $firstName,
-            lastName: $lastName,
-            username: $username,
-            lastActivityTime: $lastActivityTime,
-        );
-    }
+        public int $userId,
+        public bool $isBot,
+        public string $firstName,
+        public ?string $lastName,
+        public ?string $username,
+        public ?float $lastActivityTime,
+    ) {}
 
     public static function fromJson(array $json): static
     {
