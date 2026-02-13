@@ -271,6 +271,113 @@ interface IMaxAPI
     public function deleteChatMember(int $chatID, int $userID, ?bool $block = null): bool;
 
     /**
+     * Get Messages by ChatID or MessageIDs
+     * @param null|int $chatID
+     * @param null|array<string>|Collection<string> $messageIDs
+     * @param null|int $from
+     * @param null|int $to
+     * @param null|int $count
+     *
+     * @return Collection<MessageDTO>
+     *
+     * @throws MaxBotException
+     * @throws InvalidArgumentException
+     * @throws ConnectionException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/GET/messages
+     */
+    public function getMessages(
+        null|int $chatID = null,
+        null|array|Collection $messageIDs = null,
+        null|int $from = null,
+        null|int $to = null,
+        null|int $count = null,
+    ): Collection;
+
+    /**
+     * Get Message
+     * @param string $messageID
+     * @return MessageDTO
+     *
+     * @throws ConnectionException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/GET/messages/-messageId-
+     */
+    public function getMessage(string $messageID): MessageDTO;
+
+    /**
+     * Send message to user or chat
+     * @param Message $message
+     * @param int|null $userID
+     * @param int|null $chatID
+     * @param bool|null $disableLinkPreview
+     * @return MessageDTO
+     *
+     * @doc https://dev.max.ru/docs-api/methods/POST/messages
+     *
+     * @throws MaxBotException
+     * @throws InvalidArgumentException
+     * @throws ConnectionException
+     */
+    public function sendMessage(Message $message, int|null $userID = null, null|int $chatID = null, null|bool $disableLinkPreview = null): MessageDTO;
+
+    /**
+     * Send message to user
+     *
+     * @param int $userID
+     * @param Message $message
+     * @param bool|null $disableLinkPreview
+     * @return MessageDTO
+     *
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     */
+    public function sendMessageToUser(int $userID, Message $message, null|bool $disableLinkPreview = null): MessageDTO;
+
+    /**
+     * Send message to chat
+     *
+     * @param int $chatID
+     * @param Message $message
+     * @param bool|null $disableLinkPreview
+     * @return MessageDTO
+     *
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     */
+    public function sendMessageToChat(int $chatID, Message $message, null|bool $disableLinkPreview = null): MessageDTO;
+
+    /**
+     * Edit message
+     * @param string $messageID
+     * @param Message $message
+     * @return bool
+     *
+     * @throws APIException
+     * @throws ConnectionException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/PUT/messages
+     */
+    public function editMessage(string $messageID, Message $message): bool;
+
+    /**
+     * Delete message
+     * @param string $messageID
+     * @return bool
+     *
+     * @throws APIException
+     * @throws ConnectionException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/DELETE/messages
+     */
+    public function deleteMessage(string $messageID): bool;
+
+    /**
      * @param int<1,1000> $limit
      * @param int<0,90> $timeout
      * @param positive-int|null $marker
@@ -286,20 +393,6 @@ interface IMaxAPI
         null|int $marker = null,
         null|array $types = null
     ): array;
-
-    /**
-     * @throws MaxBotException
-     * @throws APIException
-     * @throws ConnectionException
-     */
-    public function sendMessageToUser(int $userID, Message $message): bool;
-
-    /**
-     * @throws MaxBotException
-     * @throws APIException
-     * @throws ConnectionException
-     */
-    public function sendMessageToChat(int $chatID, Message $message): bool;
 
     /**
      * @throws MaxBotException

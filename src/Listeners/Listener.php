@@ -5,6 +5,7 @@ namespace NaggaDIM\LaravelMaxBot\Listeners;
 use NaggaDIM\LaravelMaxBot\API\Helpers\Message;
 use NaggaDIM\LaravelMaxBot\Helpers\UpdateHelper;
 use NaggaDIM\LaravelMaxBot\Laravel\Facade\MaxAPI;
+use NaggaDIM\LaravelMaxBot\API\DTO\Message as MessageDTO;
 
 abstract class Listener
 {
@@ -43,17 +44,17 @@ abstract class Listener
         return UpdateHelper::getMessageText($this->currentUpdate);
     }
 
-    protected function sendMessageToUser(int $userID, Message $message): bool
+    protected function sendMessageToUser(int $userID, Message $message): MessageDTO
     {
         return MaxAPI::sendMessageToUser($userID, $message);
     }
 
-    protected function sendMessageToChat(int $chatID, Message $message): bool
+    protected function sendMessageToChat(int $chatID, Message $message): MessageDTO
     {
         return MaxAPI::sendMessageToChat($chatID, $message);
     }
 
-    protected function sendMessage(Message $message): bool
+    protected function sendMessage(Message $message): MessageDTO
     {
         return $this->sendMessageToUser($this->getUserID(), $message);
     }
@@ -68,7 +69,7 @@ abstract class Listener
         return $this->answerToCallbackWithCallbackID($this->getCallbackID(), $message, $notification);
     }
 
-    public function answerCallbackOrSendMessage(Message $message): bool
+    public function answerCallbackOrSendMessage(Message $message): bool|MessageDTO
     {
         return !empty($this->getCallbackID())
             ? $this->answerToCallback(message: $message)

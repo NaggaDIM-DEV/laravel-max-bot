@@ -58,10 +58,16 @@ use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
  * @method static bool addChatMember(int $chatID, int $userID)
  * @method static bool deleteChatMember(int $chatID, int $userID, null|bool $block = null)
  *
+ * @method static Collection<MessageDTO> getMessages(null|int $chatID = null, null|array|Collection $messageIDs = null, null|int $from = null, null|int $to = null, null|int $count = null)
+ * @method static MessageDTO getMessage(string $messageID)
+ * @method static MessageDTO sendMessage(Message $message, null|int $userID = null, null|int $userID = null, null|bool $disableLinkPreview = null)
+ * @method static MessageDTO sendMessageToUser(int $userID, Message $message, null|bool $disableLinkPreview = null)
+ * @method static MessageDTO sendMessageToChat(int $chatID, Message $message, null|bool $disableLinkPreview = null)
+ * @method static boolean editMessage(string $messageID, Message $message)
+ * @method static boolean deleteMessage(string $messageID)
+ *
  * @method static array getUpdates(int $limit = 100, int $timeout = 30, null|int $marker = null, null|array $types = null)
  *
- * @method static bool sendMessageToUser(int $userID, Message $message)
- * @method static bool sendMessageToChat(int $chatID, Message $message)
  * @method static bool answerToCallback(string $callbackID, null|Message $message = null, null|string $notification = null)
  *
  * @see IMaxAPI

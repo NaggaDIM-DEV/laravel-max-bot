@@ -7,11 +7,11 @@ use NaggaDIM\LaravelMaxBot\API\DTO\User\User;
 readonly class Message
 {
     public function __construct(
-        public User $sender,
         public Recipient $recipient,
         public int $timestamp,
-        public LinkedMessage $link,
         public MessageBody $body,
+        public ?User $sender = null,
+        public ?LinkedMessage $link = null,
         public ?MessageStat $stat = null,
         public ?string $url = null,
     ) {}
@@ -19,12 +19,12 @@ readonly class Message
     public static function fromJson(array $json): static
     {
         return new static(
-            User::fromJson($json['sender']),
             Recipient::fromJson($json['recipient']),
             $json['timestamp'],
-            LinkedMessage::fromJson($json['link']),
             MessageBody::fromJson($json['body']),
-            MessageStat::fromJson($json['stat']) ?? null,
+            isset($json['sender']) ? User::fromJson($json['sender']) : null,
+            isset($json['link']) ? LinkedMessage::fromJson($json['link']) : null,
+            isset($json['stat']) ? MessageStat::fromJson($json['stat']) : null,
             $json['url'] ?? null,
         );
     }

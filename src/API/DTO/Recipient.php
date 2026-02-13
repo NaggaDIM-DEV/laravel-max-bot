@@ -9,7 +9,7 @@ readonly class Recipient
     public function __construct(
         public int $chatId,
         public ChatType $chatType,
-        public int $userId,
+        public ?int $userId = null,
     ) {}
 
     public static function fromJson(array $json): Recipient
@@ -17,7 +17,7 @@ readonly class Recipient
         return new Recipient(
             $json['chat_id'],
             ChatType::from($json['chat_type']),
-            $json['user_id'],
+            $json['user_id'] ?? null,
         );
     }
 }

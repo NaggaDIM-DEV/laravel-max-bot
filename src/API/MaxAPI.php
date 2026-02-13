@@ -528,6 +528,181 @@ class MaxAPI implements IMaxAPI
         return true;
     }
 
+
+    /*
+     * Messages BLOCK
+     */
+
+
+    /**
+     * Get Messages by ChatID or MessageIDs
+     * @param null|int $chatID
+     * @param null|array<string>|Collection<string> $messageIDs
+     * @param null|int $from
+     * @param null|int $to
+     * @param null|int $count
+     *
+     * @return Collection<MessageDTO>
+     *
+     * @throws MaxBotException
+     * @throws InvalidArgumentException
+     * @throws ConnectionException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/GET/messages
+     */
+    public function getMessages(
+        null|int $chatID = null,
+        null|array|Collection $messageIDs = null,
+        null|int $from = null,
+        null|int $to = null,
+        null|int $count = null,
+    ): Collection
+    {
+        if(is_null($chatID) && is_null($messageIDs)) {
+            throw new InvalidArgumentException('Missing chat ID or message IDs');
+        }
+
+        return collect($this->get('/messages', [
+            ...(!is_null($chatID) ? ['chat_id' => $chatID] : []),
+            ...(!is_null($messageIDs) ? ['message_ids' => collect($messageIDs)->toArray()] : []),
+            ...(!is_null($from) ? ['from' => $from] : []),
+            ...(!is_null($to) ? ['to' => $to] : []),
+            ...(!is_null($count) ? ['count' => $count] : []),
+        ])->json()['messages'] ?? [])->map(fn($e) => MessageDTO::fromJson($e));
+    }
+
+    /**
+     * Get Message
+     * @param string $messageID
+     * @return MessageDTO
+     *
+     * @throws ConnectionException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/GET/messages/-messageId-
+     */
+    public function getMessage(string $messageID): MessageDTO
+    {
+        return MessageDTO::fromJson($this->get("/messages/$messageID")->json());
+    }
+
+    /**
+     * Send message to user or chat
+     * @param Message $message
+     * @param int|null $userID
+     * @param int|null $chatID
+     * @param bool|null $disableLinkPreview
+     * @return MessageDTO
+     *
+     * @doc https://dev.max.ru/docs-api/methods/POST/messages
+     *
+     * @throws MaxBotException
+     * @throws InvalidArgumentException
+     * @throws ConnectionException
+     */
+    public function sendMessage(Message $message, int|null $userID = null, null|int $chatID = null, null|bool $disableLinkPreview = null): MessageDTO
+    {
+        if(empty($userID) && empty($chatID)) {
+            throw new InvalidArgumentException('Missing user ID or chat ID');
+        }
+
+        return MessageDTO::fromJson($this->post("/messages", $message->toJson(), [
+            ...(!is_null($userID) ? ['user_id' => $userID] : []),
+            ...(!is_null($chatID) ? ['chat_id' => $chatID] : []),
+            ...(!is_null($disableLinkPreview) ? ['disable_link_preview' => $disableLinkPreview] : []),
+        ])->json()['message']);
+    }
+
+
+    /**
+     * Send message to user
+     *
+     * @param int $userID
+     * @param Message $message
+     * @param bool|null $disableLinkPreview
+     * @return MessageDTO
+     *
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     */
+    public function sendMessageToUser(int $userID, Message $message, null|bool $disableLinkPreview = null): MessageDTO
+    {
+        return $this->sendMessage($message, userID: $userID, disableLinkPreview: $disableLinkPreview);
+    }
+
+    /**
+     * Send message to chat
+     *
+     * @param int $chatID
+     * @param Message $message
+     * @param bool|null $disableLinkPreview
+     * @return MessageDTO
+     *
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     */
+    public function sendMessageToChat(int $chatID, Message $message, null|bool $disableLinkPreview = null): MessageDTO
+    {
+        return $this->sendMessage($message, chatID: $chatID, disableLinkPreview: $disableLinkPreview);
+    }
+
+    /**
+     * Edit message
+     * @param string $messageID
+     * @param Message $message
+     * @return bool
+     *
+     * @throws APIException
+     * @throws ConnectionException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/PUT/messages
+     */
+    public function editMessage(string $messageID, Message $message): bool
+    {
+        $response = $this->put("/messages", $message->toJson(), ['message_id' => $messageID]);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * Delete message
+     * @param string $messageID
+     * @return bool
+     *
+     * @throws APIException
+     * @throws ConnectionException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/DELETE/messages
+     */
+    public function deleteMessage(string $messageID): bool
+    {
+        $response = $this->delete("/messages", [], ['message_id' => $messageID]);
+
+        if(!($response->successful() && ($response->json()['success'] ?? false))) {
+            throw new APIException(
+                $response->json()['message'] ?? $response->body(),
+                $response->status(),
+            );
+        }
+
+        return true;
+    }
+
+    /*
+     * END Messages Block
+     */
+
     /**
      * @param int<1,1000> $limit
      * @param int<0,90> $timeout
@@ -558,43 +733,6 @@ class MaxAPI implements IMaxAPI
             'updates'   => $response['updates'],
             'marker'    => $response['marker'] ?? null,
         ];
-    }
-
-    /**
-     * @throws MaxBotException
-     * @throws ConnectionException
-     */
-    public function sendMessageToUser(int $userID, Message $message): bool
-    {
-        $response = $this->post('/messages', data: $message->toJson(), query: ['user_id' => $userID]);
-
-        if(!$response->successful()) {
-            throw new APIException(
-                $response->body(),
-                $response->status(),
-            );
-        }
-
-        return true;
-    }
-
-    /**
-     * @throws MaxBotException
-     * @throws APIException
-     * @throws ConnectionException
-     */
-    public function sendMessageToChat(int $chatID, Message $message): bool
-    {
-        $response = $this->post('/messages', data: $message->toJson(), query: ['chat_id' => $chatID]);
-
-        if(!$response->successful()) {
-            throw new APIException(
-                $response->body(),
-                $response->status(),
-            );
-        }
-
-        return true;
     }
 
     /**

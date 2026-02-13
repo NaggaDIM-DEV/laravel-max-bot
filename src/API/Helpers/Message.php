@@ -15,6 +15,11 @@ class Message
         protected bool $notify = true,
     ) {}
 
+    public static function text(string $text): static
+    {
+        return new static($text);
+    }
+
     public function setText(string $text): static
     {
         return tap($this, fn() => $this->text = $text);
