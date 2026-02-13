@@ -2,6 +2,7 @@
 
 namespace NaggaDIM\LaravelMaxBot\API;
 
+use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Client\ConnectionException;
@@ -22,6 +23,7 @@ use NaggaDIM\LaravelMaxBot\API\Responses\GetChatMembersResponse;
 use NaggaDIM\LaravelMaxBot\API\Responses\GetChatsResponse;
 use NaggaDIM\LaravelMaxBot\Enums\ChatAction;
 use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
+use NaggaDIM\LaravelMaxBot\Enums\UploadType;
 use NaggaDIM\LaravelMaxBot\Exceptions\APIException;
 use NaggaDIM\LaravelMaxBot\Exceptions\InvalidArgumentException;
 use NaggaDIM\LaravelMaxBot\Exceptions\MaxBotException;
@@ -701,6 +703,36 @@ class MaxAPI implements IMaxAPI
 
     /*
      * END Messages Block
+     */
+
+    /*
+     * Uploads Block
+     */
+
+    /**
+     * Get url for upload file
+     * @param string|UploadType $uploadType
+     * @return string
+     *
+     * @throws ConnectionException
+     * @throws InvalidArgumentException
+     * @throws MaxBotException
+     *
+     * @doc https://dev.max.ru/docs-api/methods/POST/uploads
+     */
+    public function getUploadUrl(string|UploadType $uploadType): string
+    {
+        if(is_string($uploadType)) {
+            try {
+                $uploadType = UploadType::from($uploadType);
+            } catch (Exception $e) { throw new InvalidArgumentException('Invalid upload type', previous: $e); }
+        }
+
+        return $this->post('/uploads', query: ['type' => $uploadType->value])->json()['url'];
+    }
+
+    /*
+     * END Uploads Block
      */
 
     /**
