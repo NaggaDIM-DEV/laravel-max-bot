@@ -214,14 +214,14 @@ class MaxAPI implements IMaxAPI
     /**
      * @param string|null $name
      * @param string|null $description
-     * @param Collection<BotCommand>|null $commands
-     * @return bool
+     * @param BotCommand[]|Collection<BotCommand>|null $commands
+     * @return BotInfo
      * @throws APIException
      * @throws ConnectionException
      * @throws InvalidArgumentException
      * @throws MaxBotException
      */
-    public function editMe(?string $name = null, ?string $description = null, ?Collection $commands = null): bool
+    public function editMe(?string $name = null, ?string $description = null, array|Collection|null $commands = null): BotInfo
     {
         if(empty($name) && empty($description) && empty($commands)) {
             throw new InvalidArgumentException('Name or Description or Commands cannot be empty');
@@ -229,27 +229,20 @@ class MaxAPI implements IMaxAPI
         $data = [];
         if(!is_null($name)) { $data['name'] = $name; }
         if(!is_null($description)) { $data['description'] = $description; }
-        if(!is_null($commands)) { $data['commands'] = $commands->map(fn($c) => $c->toJson()); }
+        if(!is_null($commands)) { $data['commands'] = collect($commands)->map(fn($c) => $c->toJson()); }
         $response = $this->patch('/me', $data);
 
-        if(!($response->successful() && ($response->json()['success'] ?? false))) {
-            throw new APIException(
-                $response->json()['message'] ?? $response->body(),
-                $response->status(),
-            );
-        }
-
-        return true;
+        return BotInfo::fromJson($response->json());
     }
 
     /**
-     * @param Collection<BotCommand> $commands
+     * @param BotCommand[]|Collection<BotCommand> $commands
      * @throws MaxBotException
      * @throws ConnectionException
      * @throws APIException
      * @throws InvalidArgumentException
      */
-    public function setMeCommands(Collection $commands): bool
+    public function setMeCommands(array|Collection $commands): BotInfo
     {
         return $this->editMe(commands: $commands);
     }
@@ -260,7 +253,7 @@ class MaxAPI implements IMaxAPI
      * @throws APIException
      * @throws InvalidArgumentException
      */
-    public function deleteMeCommands(): bool
+    public function deleteMeCommands(): BotInfo
     {
         return $this->editMe(commands: Collection::empty());
     }

@@ -1,7 +1,7 @@
 {
     "name": "naggadim-dev/laravel-max-bot",
     "description": "MAX messenger bot framework for Laravel",
-    "version": "0.1.4.1",
+    "version": "0.1.4.2",
     "minimum-stability": "stable",
     "license": "MIT",
     "authors": [

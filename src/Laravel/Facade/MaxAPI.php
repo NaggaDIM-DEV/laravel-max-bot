@@ -34,9 +34,9 @@ use NaggaDIM\LaravelMaxBot\Enums\UpdateType;
  * @method static bool deleteSubscription(string $url)
  *
  * @method static BotInfo getMe()
- * @method static bool editMe(null|string $name = null, null|string $description = null, null|BotCommand[] $commands = null)
- * @method static bool setMeCommands(BotCommand[] $commands)
- * @method static bool deleteMeCommands()
+ * @method static BotInfo editMe(null|string $name = null, null|string $description = null, null|BotCommand[]|Collection $commands = null)
+ * @method static BotInfo setMeCommands(BotCommand[]|Collection $commands)
+ * @method static BotInfo deleteMeCommands()
  *
  * @method static GetChatsResponse getChats(int $count = 50, null|int $marker = null)
  * @method static Chat getChat(int $chatID)
